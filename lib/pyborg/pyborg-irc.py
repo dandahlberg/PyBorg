@@ -383,7 +383,7 @@ class ModIRC(SingleServerIRCBot):
         # Calculate delay
         delay = self.settings.delay[0]
         if len(self.settings.delay) == 2:
-            delay = random.randint(self.settings.delay[0], self.settings.delay[1])
+            delay = random.uniform(self.settings.delay[0], self.settings.delay[1])
 
 
         # Pass message onto pyborg
