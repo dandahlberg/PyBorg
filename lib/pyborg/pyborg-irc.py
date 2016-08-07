@@ -60,7 +60,7 @@ class ModIRC(SingleServerIRCBot):
     Module to interface IRC input and output with the PyBorg learn
     and reply modules.
     """
-    # The bot recieves a standard message on join. The standard part
+    # The bot receives a standard message on join. The standard part
     # message is only used if the user doesn't have a part message.
     join_msg = "%s"# is here"
     part_msg = "%s"# has left"
@@ -71,9 +71,9 @@ class ModIRC(SingleServerIRCBot):
 
 
     # Command list for this module
-    commandlist =   "IRC Module Commands:\n!chans, !ignore, \
-!join, !nick, !part, !quit, !quitmsg, !jump, !reply2ignored, !replyrate, !shutup, \
-!stealth, !unignore, !wakeup, !talk, !me, !owner"
+    commandlist = ("IRC Module Commands:\n!chans, !ignore, "
+                   "!join, !nick, !part, !quit, !quitmsg, !jump, !reply2ignored, !replyrate, !shutup, "
+                   "!stealth, !unignore, !wakeup, !talk, !me, !owner")
     # Detailed command description dictionary
     commanddict = {
             "shutup": "Owner command. Usage: !shutup\nStop the bot talking",
@@ -179,19 +179,20 @@ class ModIRC(SingleServerIRCBot):
         self.start()
 
     def on_welcome(self, c, e):
-        print self.chans
         if self.settings.nickserv and self.settings.nickserv[0] != '':
             if len(self.settings.nickserv) == 2 and self.settings.nickserv[1] != '':
                 c.privmsg('NickServ', 'identify ' + self.settings.nickserv[0] + ' ' + self.settings.nickserv[1])
             else:
                 c.privmsg('NickServ', 'identify ' + self.settings.nickserv)
+
+        print "Joining channels: %s" % self.chans
         for i in self.chans:
             c.join(i)
 
     def shutdown(self):
         try:
             self.die() # disconnect from server
-        except AttributeError, e:
+        except AttributeError as e:
             # already disconnected probably (pingout or whatever)
             pass
 
@@ -284,7 +285,7 @@ class ModIRC(SingleServerIRCBot):
 
     def _on_disconnect(self, c, e):
 #               self.channels = IRCDict()
-        print "deconnection"
+        print "Disconnected from IRC."
         self.attempting_regain = False
         self.feature_monitor = False
         self.connection.execute_delayed(self.reconnection_interval, self._connected_checker)
