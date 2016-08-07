@@ -579,16 +579,12 @@ class ModIRC(SingleServerIRCBot):
                 # if no arguments are given return the current delay
                 if len(command_list) == 1:
                     msg = "The current delay is "
-                    for x in xrange(0, len(self.settings.delay)):
-                        msg = msg + str(self.settings.delay[x]) + " "
+                    msg += ' to ' .join(str(n) for n in self.settings.delay)
                 # Set the new delay value(s)
                 # eg !delay 7 11
                 else:
-                    delay_range = []
-                    for x in xrange(1, len(command_list)):
-                        delay_range.append(int(command_list[x]))
-                        msg = "done"
-                    self.settings.delay = delay_range
+                    self.settings.delay = map(float, command_list[1:])
+                    msg = "Delay value updated."
             # Save changes
             save_myname = self.settings.myname
             if self.wanted_myname is not None:
