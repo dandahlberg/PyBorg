@@ -85,6 +85,7 @@ class ModIRC(SingleServerIRCBot):
             "ignore": "Owner command. Usage: !ignore [nick1 [nick2 [...]]]\nIgnore one or more nicknames. Without arguments it lists ignored nicknames",
             "unignore": "Owner command. Usage: !unignore nick1 [nick2 [...]]\nUnignores one or more nicknames",
             "replyrate": "Owner command. Usage: !replyrate [rate%]\nSet rate of bot replies to rate%. Without arguments (not an owner-only command) shows the current reply rate",
+            "delay": "Owner command. Usage: !delay [seconds1 [seconds2]]\nSet response delay in number of seconds.  Without arguments it will list the current setting, 2 arguments will provide a range of seconds",
             "reply2ignored": "Owner command. Usage: !reply2ignored [on|off]\nAllow/disallow replying to ignored users. Without arguments shows the current setting",
             "stealth": "Owner command. Usage: !stealth [on|off]\nTurn stealth mode on or off (disable non-owner commands and don't return CTCP VERSION). Without arguments shows the current setting",
             "quitmsg": "Owner command. Usage: !quitmsg [message]\nSet the quit message. Without arguments show the current quit message",
@@ -92,6 +93,7 @@ class ModIRC(SingleServerIRCBot):
             "me": "Owner command. Usage !me nick message\nmake the bot send the sentence 'message' to 'nick'",
             "jump": "Owner command. Usage: !jump\nMake the bot reconnect to IRC",
             "quit": "Owner command. Usage: !quit\nMake the bot quit IRC",
+            "prompted": "Owner command. Usage: !prompted [on|off]\nTurn prompted mode on or off (bot will respond every time a message contains its name)",
             "owner": "Usage: !owner password\nAllow to become owner of the bot"
     }
 
@@ -117,7 +119,9 @@ class ModIRC(SingleServerIRCBot):
                   "ignorelist": ("Ignore these nicknames:", []),
                   "reply2ignored": ("Reply to ignored people", 0),
                   "reply_chance": ("Chance of reply (%) per message", 33),
+                  "delay": ("Response delay in seconds:", [0]),
                   "quitmsg": ("IRC quit message", "Bye :-("),
+                  "prompted": ("Respond whenever bot name is mentioned", 0),
                   "password": ("password for control the bot (Edit manually !)", ""),
                   "autosaveperiod": ("Save every X minutes. Leave at 0 for no saving.", 60),
                   "nickserv": ("username and password for nickserv", ("", ""))
@@ -366,6 +370,9 @@ class ModIRC(SingleServerIRCBot):
         # double reply chance if the text contains our nickname :-)
         if body_contains_me:
             replyrate = replyrate * 2
+            # always respond if prompted is true as well
+            if self.settings.prompted == 1:
+                replyrate = 100
 
         # Always reply to private messages
         if e.eventtype() == "privmsg":
@@ -375,10 +382,15 @@ class ModIRC(SingleServerIRCBot):
             if body[0] == "!":
                 if self.irc_commands(body, source, target, c, e) == 1:return
 
+        # Calculate delay
+        delay = self.settings.delay[0]
+        if len(self.settings.delay) == 2:
+            delay = random.randint(self.settings.delay[0], self.settings.delay[1])
+
 
         # Pass message onto pyborg
         if source in self.owners and e.source() in self.owner_mask:
-            self.pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1)
+            self.pyborg.process_msg(self, body, replyrate, learn, (body, source, target, c, e), owner=1, delay=delay)
         else:
             #start a new thread
             thread.start_new_thread(self.pyborg.process_msg, (self, body, replyrate, learn, (body, source, target, c, e)))
@@ -453,6 +465,24 @@ class ModIRC(SingleServerIRCBot):
                     else:
                         msg = msg + "off"
                         self.settings.reply2ignored = 0
+
+            # prompted mode
+            elif command_list[0] == "!prompted":
+                msg = "Prompted mode "
+                if len(command_list) == 1:
+                    if self.settings.prompted == 0:
+                        msg = msg + "off"
+                    else:
+                        msg = msg + "on"
+                else:
+                    toggle = command_list[1].lower()
+                    if toggle == "on":
+                        msg = msg + "on"
+                        self.settings.prompted = 1
+                    else:
+                        msg = msg + "off"
+                        self.settings.prompted = 0
+
             # Stop talking
             elif command_list[0] == "!shutup":
                 if self.settings.speaking == 1:
@@ -556,6 +586,20 @@ class ModIRC(SingleServerIRCBot):
                     for x in xrange (2, len (command_list)):
                         phrase = phrase + str(command_list[x]) + " "
                     self.output("\x01ACTION " + phrase + "\x01", ("", command_list[1], "", c, e))
+            elif command_list[0] == "!delay":
+                # if no arguments are given return the current delay
+                if len(command_list) == 1:
+                    msg = "The current delay is "
+                    for x in xrange(0, len(self.settings.delay)):
+                        msg = msg + str(self.settings.delay[x]) + " "
+                # Set the new delay value(s)
+                # eg !delay 7 11
+                else:
+                    delay_range = []
+                    for x in xrange(1, len(command_list)):
+                        delay_range.append(int(command_list[x]))
+                        msg = "done"
+                    self.settings.delay = delay_range
             # Save changes
             save_myname = self.settings.myname
             if self.wanted_myname is not None:
