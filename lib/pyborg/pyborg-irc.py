@@ -376,9 +376,10 @@ class ModIRC(SingleServerIRCBot):
         if e.eventtype() == "privmsg":
             replyrate = 100
 
-            # Parse ModIRC commands
-            if body[0] == "!":
-                if self.irc_commands(body, source, target, c, e) == 1:return
+        # Parse ModIRC commands
+        if body[0] == "!":
+            if self.irc_commands(body, source, target, c, e):
+                return
 
         # Calculate delay
         delay = self.settings.delay[0]
