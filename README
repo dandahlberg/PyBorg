@@ -1,7 +1,8 @@
 #
-# PyBorg: The python AI bot.
+# PyBorg: The python AI bot (the "student" edition).
 #
 # Copyright (c) 2000, 2006 Tom Morton, Sébastien Dailly
+# Copyright (c) 2016 OVERdrive-IRC Development Team
 #
 # This bot was inspired by the PerlBorg, by Eric Bock.
 #
@@ -27,6 +28,12 @@
 
 This version has been customized so all data and configuration is stored into data/
 To startup just run './start.sh'
+
+#############################################################################
+
+22:48 <+guppy> why did you name it student tho
+22:50 <~GL> it [i.e. the bot] learns
+22:51 <~GL> literally the most obvious name
 
 #############################################################################
 
