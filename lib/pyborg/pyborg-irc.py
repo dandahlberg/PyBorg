@@ -337,7 +337,10 @@ class ModIRC(SingleServerIRCBot):
 
         #replace nicknames by "#nick"
         if e.eventtype() == "pubmsg":
-            escaped_users = map(re.escape, self.channels[target].users())
+            try:
+                escaped_users = map(re.escape, self.channels[target].users())
+            except KeyError:
+                return
             # Match nicks on word boundaries to avoid rewriting words incorrectly as containing nicks.
             p = re.compile(r'\b(' + ('|'.join(escaped_users)) + r')\b')
             body = p.sub('#nick', body)
