@@ -441,7 +441,10 @@ class pyborg:
                 if len(command_list) == 1:
                     msg += str(self.settings.max_words)
                 else:
-                    limit = int(command_list[1].lower())
+                    try:
+                        limit = int(command_list[1].lower())
+                    except ValueError:
+                        return
                     self.settings.max_words = limit
                     msg += "now " + command_list[1]
 
@@ -522,7 +525,10 @@ class pyborg:
                 else:
                     c_max = 0
 
-                c_max = int(c_max)
+                try:
+                    c_max = int(c_max)
+                except ValueError:
+                    return
 
                 for w in self.words.keys():
 
