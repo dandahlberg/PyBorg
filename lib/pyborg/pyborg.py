@@ -816,9 +816,14 @@ class pyborg:
         if len(words) == 0:
             return ""
 
-        #remove words on the ignore list
-        #words = filter((lambda x: x not in self.settings.ignore_list and not x.isdigit()), words)
-        words = (x for x in words if x not in self.settings.ignore_list and not x.isdigit())
+        if words[0] == '#nick':
+            words = words[1:]
+
+        # Remove words on the ignore list
+        # If the first word is a _literal_ "#nick" there's no point processing it because the data structure
+        # loses the semantic understanding of the original nickname since it was replaced by the string literal
+        # "#nick"
+        words = (x for x in words if x not in self.settings.ignore_list and not x.isdigit() and x != '#nick')
 
         # Find rarest word (excluding those unknown)
         index = []
