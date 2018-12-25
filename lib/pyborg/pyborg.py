@@ -805,6 +805,7 @@ class pyborg:
         """
         Reply to a line of text.
         """
+        print >> sys.stderr, '>> Raw body being parsed: %s' % body
         # split sentences into list of words
         _words = body.split(" ")
         words = []
