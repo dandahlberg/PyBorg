@@ -70,7 +70,7 @@ def filter_message(message, bot):
         pass
 
     # No sense in keeping URLS
-        message = re.sub(r"https?://[^ ]* ", "", message)
+    message = re.sub(r"https?://[^\s]*\s?", "", message)
 
     message = message.replace("; ", ", ")
     for split_char in ['?', '!', '.', ',']:
@@ -1058,9 +1058,6 @@ class pyborg:
                     #don't learn too if there are digits and char in the word
                     #same if learning is off
                     return
-                elif ("-" in words[x] or "_" in words[x]) :
-                    words[x] = "#nick"
-
 
             num_w = self.settings.num_words
             if num_w != 0:
